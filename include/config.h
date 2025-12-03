@@ -31,8 +31,12 @@
 
 // --- Управление нагревом ---
 #define PIN_SSR_HEATER      5       // SSR через PC817
-#define PIN_ZMPT101B        1       // AC напряжение (ADC)
-#define PIN_ACS712          2       // AC ток (ADC)
+
+// --- PZEM-004T (измеритель мощности) ---
+#define PIN_PZEM_RX         1       // UART RX (подключить к TX PZEM)
+#define PIN_PZEM_TX         2       // UART TX (подключить к RX PZEM)
+#define PZEM_UART_NUM       1       // UART1 для PZEM-004T
+#define PZEM_BAUD_RATE      9600    // Скорость PZEM-004T
 
 // --- Шаговый насос (TMC2209) ---
 #define PIN_PUMP_STEP       6
@@ -182,13 +186,10 @@
 // КАЛИБРОВКА (по умолчанию)
 // =============================================================================
 
-// ZMPT101B
-#define ZMPT_OFFSET                 2048    // Средняя точка ADC
-#define ZMPT_COEFFICIENT            0.17f   // Калибровочный коэфф.
-
-// ACS712-30A
-#define ACS712_OFFSET               2048    // Средняя точка ADC
-#define ACS712_SENSITIVITY          0.066f  // В/А
+// PZEM-004T (не требует калибровки - уже откалиброван)
+#define PZEM_VOLTAGE_ALARM_MIN      190.0f  // V - мин. напряжение
+#define PZEM_VOLTAGE_ALARM_MAX      250.0f  // V - макс. напряжение
+#define PZEM_CURRENT_MAX            30.0f   // A - максимальный ток
 
 // MPX5010DP
 #define MPX5010_OFFSET              0.2f    // В при 0 кПа
@@ -200,7 +201,7 @@
 
 #define INTERVAL_TEMP_READ          1000    // Чтение температур
 #define INTERVAL_PRESSURE_READ      500     // Чтение давления
-#define INTERVAL_POWER_READ         100     // Чтение мощности
+#define INTERVAL_POWER_READ         1000    // Чтение мощности (PZEM-004T)
 #define INTERVAL_FLOW_READ          1000    // Чтение потока воды
 #define INTERVAL_DISPLAY_UPDATE     250     // Обновление дисплея
 #define INTERVAL_WEB_BROADCAST      1000    // WebSocket broadcast

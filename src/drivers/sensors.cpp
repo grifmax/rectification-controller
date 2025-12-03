@@ -5,7 +5,7 @@
  * - DS18B20 ×7 (температуры)
  * - BMP280 ×2 (атмосферное давление)
  * - ADS1115 + MPX5010DP (давление куба/ареометр)
- * - ZMPT101B + ACS712 (напряжение и ток)
+ * - PZEM-004T v3.0 (напряжение, ток, мощность, энергия, частота, PF)
  * - YF-S201 (поток воды)
  */
 
@@ -14,6 +14,7 @@
 #include <DallasTemperature.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_ADS1X15.h>
+#include <PZEM004Tv30.h>
 
 // =============================================================================
 // ГЛОБАЛЬНЫЕ ОБЪЕКТЫ
@@ -33,12 +34,13 @@ static bool bmp2_ok = false;
 static Adafruit_ADS1115 ads1115;
 static bool ads_ok = false;
 
+// PZEM-004T v3.0 (измеритель мощности)
+static HardwareSerial pzemSerial(PZEM_UART_NUM);
+static PZEM004Tv30 pzem(pzemSerial, PIN_PZEM_RX, PIN_PZEM_TX);
+static bool pzem_ok = false;
+
 // Калибровка
 static TempCalibration tempCal;
-static float zmptCoeff = ZMPT_COEFFICIENT;
-static int16_t zmptOffset = ZMPT_OFFSET;
-static float acs712Coeff = ACS712_SENSITIVITY;
-static int16_t acs712Offset = ACS712_OFFSET;
 
 // Датчик потока воды (счётчик импульсов)
 static volatile uint32_t flowPulseCount = 0;
@@ -60,44 +62,6 @@ void IRAM_ATTR flowPulseISR() {
 // =============================================================================
 // ВНУТРЕННИЕ ФУНКЦИИ
 // =============================================================================
-
-/**
- * Чтение RMS напряжения через ZMPT101B
- */
-static float readVoltageRMS() {
-    const int samples = 100;
-    uint32_t sum = 0;
-
-    for (int i = 0; i < samples; i++) {
-        int val = analogRead(PIN_ZMPT101B);
-        int centered = val - zmptOffset;
-        sum += centered * centered;
-        delayMicroseconds(100);
-    }
-
-    float rms = sqrt((float)sum / samples);
-    return rms * zmptCoeff;
-}
-
-/**
- * Чтение RMS тока через ACS712
- */
-static float readCurrentRMS() {
-    const int samples = 100;
-    uint32_t sum = 0;
-
-    for (int i = 0; i < samples; i++) {
-        int val = analogRead(PIN_ACS712);
-        int centered = val - acs712Offset;
-        sum += centered * centered;
-        delayMicroseconds(100);
-    }
-
-    float rms = sqrt((float)sum / samples);
-    // Преобразуем ADC в ток (acs712Coeff = В/А)
-    float voltage = (rms / 4095.0f) * 3.3f; // ESP32 ADC 12-бит
-    return voltage / acs712Coeff;
-}
 
 /**
  * Интерполяция крепости по таблице калибровки
@@ -194,9 +158,18 @@ void init() {
         LOG_E("Sensors: ADS1115 NOT FOUND");
     }
 
-    // Аналоговые входы ESP32
-    analogReadResolution(12); // 12-бит (0-4095)
-    analogSetAttenuation(ADC_11db); // 0-3.3V
+    // PZEM-004T v3.0
+    pzemSerial.begin(PZEM_BAUD_RATE, SERIAL_8N1, PIN_PZEM_RX, PIN_PZEM_TX);
+    delay(100); // Даём время на инициализацию
+
+    // Проверка связи с PZEM
+    float testVoltage = pzem.voltage();
+    if (!isnan(testVoltage) && testVoltage > 0) {
+        pzem_ok = true;
+        LOG_I("Sensors: PZEM-004T OK (V=%.1fV)", testVoltage);
+    } else {
+        LOG_E("Sensors: PZEM-004T NOT FOUND or NO AC POWER");
+    }
 
     // Датчик потока воды
     pinMode(PIN_FLOW_SENSOR, INPUT_PULLUP);
@@ -308,19 +281,45 @@ void readHydrometer(Hydrometer& hydro, float temperature) {
 }
 
 void readPower(Power& power) {
-    // Напряжение
-    power.voltage = readVoltageRMS();
+    if (!pzem_ok) {
+        // PZEM не инициализирован
+        power.voltage = 0;
+        power.current = 0;
+        power.power = 0;
+        power.energy = 0;
+        power.frequency = 0;
+        power.powerFactor = 0;
+        power.lastUpdate = millis();
+        return;
+    }
 
-    // Ток
-    power.current = readCurrentRMS();
+    // Читаем все параметры с PZEM-004T
+    power.voltage = pzem.voltage();
+    power.current = pzem.current();
+    power.power = pzem.power();
+    power.energy = pzem.energy();
+    power.frequency = pzem.frequency();
+    power.powerFactor = pzem.pf();
 
-    // Мощность (для ТЭНа cos φ ≈ 1.0)
-    power.power = power.voltage * power.current;
-
-    // Ограничить аномальные значения
-    if (power.voltage < 0 || power.voltage > 300) power.voltage = 0;
-    if (power.current < 0 || power.current > 50) power.current = 0;
-    if (power.power < 0 || power.power > 10000) power.power = 0;
+    // Проверка на NaN и корректность
+    if (isnan(power.voltage) || power.voltage < 0 || power.voltage > 300) {
+        power.voltage = 0;
+    }
+    if (isnan(power.current) || power.current < 0 || power.current > PZEM_CURRENT_MAX) {
+        power.current = 0;
+    }
+    if (isnan(power.power) || power.power < 0 || power.power > 10000) {
+        power.power = 0;
+    }
+    if (isnan(power.energy) || power.energy < 0) {
+        power.energy = 0;
+    }
+    if (isnan(power.frequency) || power.frequency < 45 || power.frequency > 65) {
+        power.frequency = 50; // По умолчанию 50 Гц
+    }
+    if (isnan(power.powerFactor) || power.powerFactor < 0 || power.powerFactor > 1) {
+        power.powerFactor = 0;
+    }
 
     power.lastUpdate = millis();
 }
