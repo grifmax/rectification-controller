@@ -3,11 +3,20 @@
 let ws = null;
 let reconnectInterval = null;
 let isConnected = false;
+let miniChart = null;
+let miniChartData = {
+    timestamps: [],
+    cube: [],
+    columnTop: [],
+    reflux: []
+};
+const MINI_CHART_MAX_POINTS = 60; // 5 минут при обновлении каждые 5 секунд
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     initTabs();
     loadTheme();
+    initMiniChart();
     connectWebSocket();
 });
 
@@ -90,6 +99,124 @@ function updateConnectionStatus(connected) {
     } else {
         statusDot.className = 'status-dot offline';
         statusText.textContent = 'Отключено';
+    }
+}
+
+// ============================================================================
+// Mini Chart
+// ============================================================================
+
+function initMiniChart() {
+    const options = {
+        chart: {
+            type: 'line',
+            height: 200,
+            animations: {
+                enabled: true,
+                dynamicAnimation: {
+                    speed: 500
+                }
+            },
+            toolbar: {
+                show: false
+            },
+            background: 'transparent'
+        },
+        theme: {
+            mode: document.body.getAttribute('data-theme') || 'light'
+        },
+        series: [
+            {
+                name: 'Куб',
+                data: []
+            },
+            {
+                name: 'Царга верх',
+                data: []
+            },
+            {
+                name: 'Дефлегматор',
+                data: []
+            }
+        ],
+        xaxis: {
+            type: 'datetime',
+            labels: {
+                datetimeFormatter: {
+                    minute: 'HH:mm'
+                }
+            }
+        },
+        yaxis: {
+            title: {
+                text: '°C'
+            },
+            decimalsInFloat: 1
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        },
+        colors: ['#dc3545', '#007bff', '#17a2b8'],
+        legend: {
+            show: true,
+            position: 'top'
+        },
+        tooltip: {
+            x: {
+                format: 'HH:mm:ss'
+            }
+        }
+    };
+
+    miniChart = new ApexCharts(document.querySelector("#mini-chart"), options);
+    miniChart.render();
+}
+
+function updateMiniChart(data) {
+    if (!miniChart) return;
+
+    const now = new Date().getTime();
+
+    // Добавить новые данные
+    if (data.t_cube !== undefined) {
+        miniChartData.timestamps.push(now);
+        miniChartData.cube.push(data.t_cube);
+        miniChartData.columnTop.push(data.t_column_top || null);
+        miniChartData.reflux.push(data.t_reflux || null);
+
+        // Ограничить количество точек
+        if (miniChartData.timestamps.length > MINI_CHART_MAX_POINTS) {
+            miniChartData.timestamps.shift();
+            miniChartData.cube.shift();
+            miniChartData.columnTop.shift();
+            miniChartData.reflux.shift();
+        }
+
+        // Обновить график
+        miniChart.updateSeries([
+            {
+                name: 'Куб',
+                data: miniChartData.timestamps.map((t, i) => ({
+                    x: t,
+                    y: miniChartData.cube[i]
+                }))
+            },
+            {
+                name: 'Царга верх',
+                data: miniChartData.timestamps.map((t, i) => ({
+                    x: t,
+                    y: miniChartData.columnTop[i]
+                }))
+            },
+            {
+                name: 'Дефлегматор',
+                data: miniChartData.timestamps.map((t, i) => ({
+                    x: t,
+                    y: miniChartData.reflux[i]
+                }))
+            }
+        ]);
     }
 }
 
@@ -194,6 +321,9 @@ function updateUI(data) {
     if (data.type === 'event') {
         addLog(data.message, data.level || 'info');
     }
+
+    // Обновить мини-график
+    updateMiniChart(data);
 }
 
 function formatUptime(seconds) {
@@ -307,6 +437,16 @@ function saveEquipment() {
 function setTheme(theme) {
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+
+    // Обновить тему мини-графика
+    if (miniChart) {
+        miniChart.updateOptions({
+            theme: {
+                mode: theme
+            }
+        });
+    }
+
     addLog(`🎨 Тема изменена: ${theme}`, 'info');
 }
 

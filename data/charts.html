@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Графики - Smart-Column S3</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="charts-style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>📈 Графики реального времени</h1>
+                    <a href="index.html" class="back-link">← Вернуться к управлению</a>
+                </div>
+                <div class="status-bar">
+                    <span id="connection-status" class="status-dot offline">●</span>
+                    <span id="connection-text">Подключение...</span>
+                    <span class="uptime">Uptime: <span id="uptime">--:--:--</span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Панель управления графиками -->
+        <div class="chart-controls">
+            <div class="control-panel">
+                <div class="control-group-inline">
+                    <label><strong>Период:</strong></label>
+                    <button class="btn btn-sm period-btn active" data-period="60">1 мин</button>
+                    <button class="btn btn-sm period-btn" data-period="300">5 мин</button>
+                    <button class="btn btn-sm period-btn" data-period="900">15 мин</button>
+                    <button class="btn btn-sm period-btn" data-period="3600">1 час</button>
+                    <button class="btn btn-sm period-btn" data-period="0">Всё</button>
+                </div>
+                <div class="control-group-inline">
+                    <button class="btn btn-sm" onclick="pauseCharts()">⏸️ Пауза</button>
+                    <button class="btn btn-sm" onclick="resumeCharts()">▶️ Продолжить</button>
+                    <button class="btn btn-sm" onclick="clearCharts()">🗑️ Очистить</button>
+                    <button class="btn btn-sm btn-primary" onclick="exportCharts()">💾 Экспорт PNG</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- График 1: Температуры -->
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h2>🌡️ Температуры</h2>
+                <div class="chart-checkboxes">
+                    <label><input type="checkbox" id="check-temp-cube" checked> Куб</label>
+                    <label><input type="checkbox" id="check-temp-column-bottom" checked> Царга низ</label>
+                    <label><input type="checkbox" id="check-temp-column-top" checked> Царга верх</label>
+                    <label><input type="checkbox" id="check-temp-reflux" checked> Дефлегматор</label>
+                    <label><input type="checkbox" id="check-temp-tsa" checked> ТСА</label>
+                    <label><input type="checkbox" id="check-temp-water-in"> Вода вход</label>
+                    <label><input type="checkbox" id="check-temp-water-out"> Вода выход</label>
+                </div>
+            </div>
+            <div id="chart-temperatures" class="chart"></div>
+        </div>
+
+        <!-- График 2: Давление -->
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h2>📈 Давление</h2>
+                <div class="chart-checkboxes">
+                    <label><input type="checkbox" id="check-pressure-cube" checked> Куб (мм рт.ст.)</label>
+                    <label><input type="checkbox" id="check-pressure-atm" checked> Атмосферное (гПа)</label>
+                    <label><input type="checkbox" id="check-pressure-flood"> Порог захлёба</label>
+                </div>
+            </div>
+            <div id="chart-pressure" class="chart"></div>
+        </div>
+
+        <!-- График 3: Мощность PZEM-004T -->
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h2>⚡ Электропитание (PZEM-004T)</h2>
+                <div class="chart-checkboxes">
+                    <label><input type="checkbox" id="check-power-voltage" checked> Напряжение (V)</label>
+                    <label><input type="checkbox" id="check-power-current" checked> Ток (A)</label>
+                    <label><input type="checkbox" id="check-power-power" checked> Мощность (W)</label>
+                    <label><input type="checkbox" id="check-power-energy"> Энергия (кВт·ч)</label>
+                    <label><input type="checkbox" id="check-power-frequency"> Частота (Гц)</label>
+                    <label><input type="checkbox" id="check-power-pf"> PF</label>
+                </div>
+            </div>
+            <div id="chart-power" class="chart"></div>
+        </div>
+
+        <!-- График 4: Насос и отбор -->
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h2>💧 Насос и отбор</h2>
+                <div class="chart-checkboxes">
+                    <label><input type="checkbox" id="check-pump-speed" checked> Скорость (мл/ч)</label>
+                    <label><input type="checkbox" id="check-pump-volume" checked> Накопительный объём (мл)</label>
+                </div>
+            </div>
+            <div id="chart-pump" class="chart"></div>
+        </div>
+
+        <!-- График 5: Крепость -->
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h2>🍷 Электронный ареометр</h2>
+            </div>
+            <div id="chart-abv" class="chart"></div>
+        </div>
+
+        <!-- График 6: Фракции (столбчатый) -->
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h2>📊 Объёмы фракций</h2>
+            </div>
+            <div id="chart-fractions" class="chart-bar"></div>
+        </div>
+
+        <!-- Футер -->
+        <footer>
+            <p>Smart-Column S3 v1.0 | Графики: ApexCharts</p>
+        </footer>
+    </div>
+
+    <!-- ApexCharts библиотека -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
+    <script src="charts.js"></script>
+</body>
+</html>

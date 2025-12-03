@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart-Column S3</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
     <div class="container">
@@ -24,6 +25,7 @@
             <button class="tab" data-tab="control">🎛️ Управление</button>
             <button class="tab" data-tab="settings">⚙️ Настройки</button>
             <button class="tab" data-tab="logs">📝 Логи</button>
+            <a href="charts.html" class="tab" style="text-decoration: none;">📈 Графики</a>
         </nav>
 
         <!-- Вкладка: Мониторинг -->
@@ -152,6 +154,15 @@
                     <div class="big-value">
                         <div class="label">Крепость</div>
                         <div id="abv" class="value">--%</div>
+                    </div>
+                </div>
+
+                <!-- Мини-график температур -->
+                <div class="card">
+                    <h2>📈 Температуры (5 мин)</h2>
+                    <div id="mini-chart" style="width: 100%; height: 200px;"></div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <a href="charts.html" class="btn btn-primary btn-sm">📊 Все графики</a>
                     </div>
                 </div>
             </div>
