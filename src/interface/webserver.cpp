@@ -74,6 +74,17 @@ void broadcastState(const SystemState& state) {
     doc["speed"] = state.pump.speedMlPerHour;
     doc["volume"] = state.pump.totalVolumeMl;
 
+    // Статистика памяти
+    JsonObject mem = doc.createNestedObject("memory");
+    mem["heap_free"] = ESP.getFreeHeap();
+    mem["heap_total"] = ESP.getHeapSize();
+    mem["heap_used_pct"] = (ESP.getHeapSize() - ESP.getFreeHeap()) * 100 / ESP.getHeapSize();
+    mem["psram_free"] = ESP.getFreePsram();
+    mem["psram_total"] = ESP.getPsramSize();
+    mem["flash_used"] = ESP.getSketchSize();
+    mem["flash_total"] = ESP.getFlashChipSize();
+    mem["flash_used_pct"] = ESP.getSketchSize() * 100 / ESP.getFlashChipSize();
+
     String json;
     serializeJson(doc, json);
     ws.textAll(json);

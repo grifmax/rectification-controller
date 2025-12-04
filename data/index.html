@@ -245,6 +245,16 @@
                         <button class="btn" onclick="setTheme('dark')">🌙 Тёмная</button>
                     </div>
                 </div>
+
+                <div class="card">
+                    <h2>Отображение</h2>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="show-memory-stats" onchange="toggleMemoryStats()">
+                            <span>Показывать статистику памяти в футере</span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -263,6 +273,13 @@
         <!-- Футер -->
         <footer>
             <p>Smart-Column S3 v1.0 | ESP32-S3 DevKitC-1 N16R8</p>
+            <div id="memory-stats" style="display: none; margin-top: 10px; font-size: 0.75em; color: var(--text-secondary); line-height: 1.4;">
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                    <span>💾 SRAM: <span id="mem-heap-used">--</span> / <span id="mem-heap-total">--</span> (<span id="mem-heap-pct">--%</span>)</span>
+                    <span>🧠 PSRAM: <span id="mem-psram-free">--</span> / <span id="mem-psram-total">--</span></span>
+                    <span>📦 Flash: <span id="mem-flash-pct">--%</span></span>
+                </div>
+            </div>
         </footer>
     </div>
 
