@@ -6,6 +6,12 @@ let isConnected = false;
 let chartsPaused = false;
 let currentPeriod = 60; // секунды
 
+// Anomaly detection settings
+let anomalyDetectionEnabled = false;
+let anomalyThreshold = 15; // процент отклонения от среднего
+let anomalyWindow = 300; // секунды для расчета среднего (5 минут)
+let anomalyMarkers = {}; // хранилище маркеров для каждого графика
+
 // Chart instances
 let chartsInstances = {
     temperatures: null,
@@ -35,6 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadChartPreferences();
     setupCheckboxListeners();
     setupPeriodButtons();
+    setupAnomalyControls();
+    loadAnomalySettings();
     connectWebSocket();
 });
 
@@ -299,6 +307,11 @@ function updateChartData(data) {
             chartData.temperatures.waterIn,
             chartData.temperatures.waterOut
         ]);
+
+        // Детекция аномалий для температур
+        detectAnomalies('temperatures', 'Куб', chartData.temperatures.cube, chartData.temperatures.time);
+        detectAnomalies('temperatures', 'Царга верх', chartData.temperatures.columnTop, chartData.temperatures.time);
+        detectAnomalies('temperatures', 'Дефлегматор', chartData.temperatures.reflux, chartData.temperatures.time);
     }
 
     // Давление
@@ -313,6 +326,9 @@ function updateChartData(data) {
             chartData.pressure.atm,
             chartData.pressure.flood
         ]);
+
+        // Детекция аномалий для давления
+        detectAnomalies('pressure', 'Куб', chartData.pressure.cube, chartData.pressure.time);
     }
 
     // Мощность
@@ -333,6 +349,10 @@ function updateChartData(data) {
             chartData.power.frequency,
             chartData.power.pf
         ]);
+
+        // Детекция аномалий для мощности
+        detectAnomalies('power', 'Мощность', chartData.power.power, chartData.power.time);
+        detectAnomalies('power', 'Ток', chartData.power.current, chartData.power.time);
     }
 
     // Насос
@@ -602,6 +622,191 @@ function exportCharts() {
                     link.click();
                 });
             }, 200);
+        }
+    });
+}
+
+// ============================================================================
+// Anomaly Detection
+// ============================================================================
+
+function setupAnomalyControls() {
+    // Переключатель маркеров
+    const toggleBtn = document.getElementById('anomaly-toggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('change', (e) => {
+            anomalyDetectionEnabled = e.target.checked;
+            saveAnomalySettings();
+            if (!anomalyDetectionEnabled) {
+                clearAllMarkers();
+            }
+        });
+    }
+
+    // Порог чувствительности
+    const thresholdSlider = document.getElementById('anomaly-threshold');
+    const thresholdValue = document.getElementById('anomaly-threshold-value');
+    if (thresholdSlider) {
+        thresholdSlider.addEventListener('input', (e) => {
+            anomalyThreshold = parseInt(e.target.value);
+            if (thresholdValue) {
+                thresholdValue.textContent = anomalyThreshold + '%';
+            }
+            saveAnomalySettings();
+        });
+    }
+
+    // Окно времени
+    const windowSelect = document.getElementById('anomaly-window');
+    if (windowSelect) {
+        windowSelect.addEventListener('change', (e) => {
+            anomalyWindow = parseInt(e.target.value);
+            saveAnomalySettings();
+        });
+    }
+}
+
+function saveAnomalySettings() {
+    const settings = {
+        enabled: anomalyDetectionEnabled,
+        threshold: anomalyThreshold,
+        window: anomalyWindow
+    };
+    localStorage.setItem('anomalySettings', JSON.stringify(settings));
+}
+
+function loadAnomalySettings() {
+    const saved = localStorage.getItem('anomalySettings');
+    if (!saved) return;
+
+    try {
+        const settings = JSON.parse(saved);
+        anomalyDetectionEnabled = settings.enabled || false;
+        anomalyThreshold = settings.threshold || 15;
+        anomalyWindow = settings.window || 300;
+
+        // Обновить UI
+        const toggleBtn = document.getElementById('anomaly-toggle');
+        if (toggleBtn) toggleBtn.checked = anomalyDetectionEnabled;
+
+        const thresholdSlider = document.getElementById('anomaly-threshold');
+        const thresholdValue = document.getElementById('anomaly-threshold-value');
+        if (thresholdSlider) {
+            thresholdSlider.value = anomalyThreshold;
+            if (thresholdValue) thresholdValue.textContent = anomalyThreshold + '%';
+        }
+
+        const windowSelect = document.getElementById('anomaly-window');
+        if (windowSelect) windowSelect.value = anomalyWindow;
+    } catch (e) {
+        console.error('Error loading anomaly settings:', e);
+    }
+}
+
+function detectAnomalies(chartName, seriesName, dataArray, timeArray) {
+    if (!anomalyDetectionEnabled || dataArray.length < 10) return;
+
+    const now = new Date().getTime();
+    const windowStart = now - (anomalyWindow * 1000);
+
+    // Получить данные за окно времени
+    const windowData = [];
+    for (let i = timeArray.length - 1; i >= 0; i--) {
+        if (timeArray[i] >= windowStart) {
+            windowData.push(dataArray[i]);
+        } else {
+            break;
+        }
+    }
+
+    if (windowData.length < 3) return;
+
+    // Рассчитать среднее
+    const mean = windowData.reduce((sum, val) => sum + val, 0) / windowData.length;
+
+    // Проверить последнее значение
+    const lastValue = dataArray[dataArray.length - 1];
+    const deviation = Math.abs((lastValue - mean) / mean * 100);
+
+    if (deviation > anomalyThreshold) {
+        // Обнаружено отклонение - добавить маркер
+        addAnomalyMarker(chartName, seriesName, now, lastValue, mean, deviation);
+    }
+}
+
+function addAnomalyMarker(chartName, seriesName, timestamp, value, mean, deviation) {
+    const chart = chartsInstances[chartName];
+    if (!chart) return;
+
+    // Инициализировать массив маркеров для графика
+    if (!anomalyMarkers[chartName]) {
+        anomalyMarkers[chartName] = [];
+    }
+
+    // Проверить, есть ли уже маркер близко к этому времени (избежать дублирования)
+    const existingMarker = anomalyMarkers[chartName].find(m =>
+        Math.abs(m.timestamp - timestamp) < 10000 && m.series === seriesName
+    );
+    if (existingMarker) return;
+
+    const marker = {
+        series: seriesName,
+        timestamp: timestamp,
+        value: value,
+        mean: mean,
+        deviation: deviation
+    };
+
+    anomalyMarkers[chartName].push(marker);
+
+    // Ограничить количество маркеров (последние 50)
+    if (anomalyMarkers[chartName].length > 50) {
+        anomalyMarkers[chartName].shift();
+    }
+
+    // Обновить аннотации на графике
+    updateChartAnnotations(chartName);
+}
+
+function updateChartAnnotations(chartName) {
+    const chart = chartsInstances[chartName];
+    if (!chart || !anomalyMarkers[chartName]) return;
+
+    const annotations = {
+        points: anomalyMarkers[chartName].map(marker => ({
+            x: marker.timestamp,
+            y: marker.value,
+            marker: {
+                size: 6,
+                fillColor: '#dc3545',
+                strokeColor: '#fff',
+                strokeWidth: 2
+            },
+            label: {
+                borderColor: '#dc3545',
+                offsetY: 0,
+                style: {
+                    color: '#fff',
+                    background: '#dc3545'
+                },
+                text: `⚠ ${marker.series}: +${marker.deviation.toFixed(1)}%`
+            }
+        }))
+    };
+
+    chart.updateOptions({
+        annotations: annotations
+    });
+}
+
+function clearAllMarkers() {
+    anomalyMarkers = {};
+    Object.keys(chartsInstances).forEach(chartName => {
+        const chart = chartsInstances[chartName];
+        if (chart && chartName !== 'fractions') {
+            chart.updateOptions({
+                annotations: { points: [] }
+            });
         }
     });
 }

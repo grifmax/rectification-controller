@@ -44,6 +44,38 @@
             </div>
         </div>
 
+        <!-- Панель маркеров аномалий -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h2>⚠️ Маркеры отклонений от нормы</h2>
+            <div class="anomaly-controls">
+                <div class="control-group-inline">
+                    <label class="switch-label">
+                        <input type="checkbox" id="anomaly-toggle">
+                        <span>Включить маркеры</span>
+                    </label>
+                </div>
+                <div class="control-group-inline">
+                    <label><strong>Порог отклонения:</strong></label>
+                    <input type="range" id="anomaly-threshold" min="5" max="50" value="15" step="5" style="width: 200px;">
+                    <span id="anomaly-threshold-value" style="min-width: 40px; display: inline-block; font-weight: bold;">15%</span>
+                </div>
+                <div class="control-group-inline">
+                    <label><strong>Окно усреднения:</strong></label>
+                    <select id="anomaly-window" class="select-sm">
+                        <option value="60">1 минута</option>
+                        <option value="180">3 минуты</option>
+                        <option value="300" selected>5 минут</option>
+                        <option value="600">10 минут</option>
+                        <option value="900">15 минут</option>
+                    </select>
+                </div>
+                <div style="margin-top: 10px; padding: 10px; background-color: var(--bg-secondary); border-radius: 5px; font-size: 0.9em;">
+                    <strong>ℹ️ Как работает:</strong> Маркеры автоматически появляются на графиках, когда текущее значение отклоняется
+                    от среднего за выбранное окно времени больше чем на указанный порог. Маркеры показывают процент отклонения.
+                </div>
+            </div>
+        </div>
+
         <!-- График 1: Температуры -->
         <div class="card chart-card">
             <div class="chart-header">
