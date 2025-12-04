@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart-Column S3</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="column-animation.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
@@ -157,6 +158,14 @@
                     </div>
                 </div>
 
+                <!-- Анимированная схема колонны -->
+                <div class="card">
+                    <h2>🏭 Схема процесса</h2>
+                    <div style="display: flex; justify-content: center; padding: 10px;">
+                        <object data="schemes/column-animated.svg" type="image/svg+xml" style="width: 100%; max-width: 500px; height: auto;"></object>
+                    </div>
+                </div>
+
                 <!-- Мини-график температур -->
                 <div class="card">
                     <h2>📈 Температуры (5 мин)</h2>
@@ -283,6 +292,7 @@
         </footer>
     </div>
 
+    <script src="column-animation.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

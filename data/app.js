@@ -330,6 +330,11 @@ function updateUI(data) {
     if (data.memory !== undefined) {
         updateMemoryStats(data.memory);
     }
+
+    // Обновить анимацию колонны
+    if (typeof updateColumnAnimation === 'function') {
+        updateColumnAnimation(data);
+    }
 }
 
 function formatUptime(seconds) {
