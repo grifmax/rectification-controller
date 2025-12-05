@@ -21,9 +21,9 @@
 #define PZEM_RX_PIN      16    // RX пин для PZEM (подключается к TX PZEM)
 #define PZEM_TX_PIN      17    // TX пин для PZEM (подключается к RX PZEM)
 
-// Настройки OLED дисплея 
+// Настройки OLED дисплея
 #define DISPLAY_SDA_PIN 21     // SDA пин для I2C дисплея
-#define DISPLAY_SCL_PIN 22     // SCL пин для I2C дисплея
+#define DISPLAY_SCL_PIN 9      // SCL пин для I2C дисплея (GPIO22 нет на ESP32-S3!)
 #define DISPLAY_RESET_PIN -1   // Сброс дисплея (-1 если не используется)
 #define DISPLAY_ADDRESS 0x3C   // I2C адрес дисплея (0x3C для 128x64, 0x3D для 128x32)
 #define DISPLAY_WIDTH 128      // Ширина дисплея

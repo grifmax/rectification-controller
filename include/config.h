@@ -24,7 +24,7 @@
 
 // --- I2C шина (BMP280 x2, ADS1115) ---
 #define PIN_I2C_SDA         21
-#define PIN_I2C_SCL         22
+#define PIN_I2C_SCL         9       // GPIO9 (GPIO22 не существует на S3!)
 
 // --- OneWire (DS18B20 x7) ---
 #define PIN_ONEWIRE         4
