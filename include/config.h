@@ -33,9 +33,9 @@
 #define PIN_SSR_HEATER      5       // SSR через PC817
 
 // --- PZEM-004T (измеритель мощности) ---
-#define PIN_PZEM_RX         1       // UART RX (подключить к TX PZEM)
-#define PIN_PZEM_TX         2       // UART TX (подключить к RX PZEM)
-#define PZEM_UART_NUM       1       // UART1 для PZEM-004T
+#define PIN_PZEM_RX         44      // UART0 RX (подключить к TX PZEM)
+#define PIN_PZEM_TX         43      // UART0 TX (подключить к RX PZEM)
+#define PZEM_UART_NUM       0       // UART0 для PZEM-004T (аппаратный)
 #define PZEM_BAUD_RATE      9600    // Скорость PZEM-004T
 
 // --- Шаговый насос (TMC2209) ---
@@ -50,7 +50,7 @@
 
 // --- Опциональные выходы ---
 #define PIN_SERVO_FRACTION  8       // Фракционник (PWM 50Hz)
-#define PIN_VALVE_STARTSTOP 9       // Клапан старт-стоп (ШИМ)
+#define PIN_VALVE_STARTSTOP 14      // Клапан старт-стоп (ШИМ) (был 9 - конфликт с I2C SCL!)
 
 // --- Датчики ---
 #define PIN_FLOW_SENSOR     3       // YF-S201 (счётчик импульсов)

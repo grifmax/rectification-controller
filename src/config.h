@@ -10,16 +10,16 @@
 #define DISPLAY_ENABLED          // Включить поддержку дисплея
 #define BUTTONS_ENABLED          // Включить поддержку кнопок управления
 
-// Конфигурация пинов
-#define PIN_HEATER       32    // Пин для управления нагревателем (через реле)
-#define PIN_PUMP         33    // Пин для управления насосом
-#define PIN_VALVE        25    // Пин для управления клапаном
-#define PIN_BUZZER       26    // Пин для пьезоизлучателя
+// Конфигурация пинов (ESP32-S3 DevKitC-1 N16R8)
+#define PIN_HEATER       5     // Пин для управления нагревателем (SSR через PC817)
+#define PIN_PUMP         6     // Пин для управления насосом (STEP)
+#define PIN_VALVE        16    // Пин для управления клапаном (охлаждение)
+#define PIN_BUZZER       38    // Пин для пьезоизлучателя
 #define PIN_TEMP_SENSORS 4     // Пин для датчиков температуры DS18B20
 
-// Пины для PZEM-004T
-#define PZEM_RX_PIN      16    // RX пин для PZEM (подключается к TX PZEM)
-#define PZEM_TX_PIN      17    // TX пин для PZEM (подключается к RX PZEM)
+// Пины для PZEM-004T (аппаратный UART0)
+#define PZEM_RX_PIN      44    // RX пин для PZEM (подключается к TX PZEM)
+#define PZEM_TX_PIN      43    // TX пин для PZEM (подключается к RX PZEM)
 
 // Настройки OLED дисплея
 #define DISPLAY_SDA_PIN 21     // SDA пин для I2C дисплея
@@ -29,10 +29,10 @@
 #define DISPLAY_WIDTH 128      // Ширина дисплея
 #define DISPLAY_HEIGHT 64      // Высота дисплея
 
-// Пины кнопок управления
+// Пины кнопок управления (ESP32-S3)
 #define PIN_BUTTON_UP    13    // Кнопка "Вверх"
-#define PIN_BUTTON_DOWN  14    // Кнопка "Вниз"
-#define PIN_BUTTON_OK    27    // Кнопка "ОК/Выбор"
+#define PIN_BUTTON_DOWN  10    // Кнопка "Вниз" (был 14 - конфликт!)
+#define PIN_BUTTON_OK    11    // Кнопка "ОК/Выбор" (был 27 - НЕТ на S3!)
 #define PIN_BUTTON_BACK  12    // Кнопка "Назад/Отмена"
 
 // Настройки кнопок
