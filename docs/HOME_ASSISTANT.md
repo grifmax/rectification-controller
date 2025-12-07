@@ -1,219 +1,219 @@
-# Smart-Column S3 — Home Assistant Integration Guide
+# Smart-Column S3 — Руководство по интеграции с Home Assistant
 
-**Version:** 1.2+
-**Last Updated:** 2025-12-06
+**Версия:** 1.2+
+**Последнее обновление:** 2025-12-06
 
-## Table of Contents
+## Содержание
 
-1. [Overview](#overview)
-2. [Prerequisites](#prerequisites)
-3. [MQTT Broker Setup](#mqtt-broker-setup)
-4. [Device Configuration](#device-configuration)
-5. [Home Assistant Configuration](#home-assistant-configuration)
-6. [Dashboard Examples](#dashboard-examples)
-7. [Automations](#automations)
+1. [Обзор](#обзор)
+2. [Требования](#требования)
+3. [Настройка MQTT брокера](#настройка-mqtt-брокера)
+4. [Настройка устройства](#настройка-устройства)
+5. [Настройка Home Assistant](#настройка-home-assistant)
+6. [Примеры панелей управления](#примеры-панелей-управления)
+7. [Автоматизации](#автоматизации)
 8. [Energy Dashboard](#energy-dashboard)
-9. [Troubleshooting](#troubleshooting)
+9. [Решение проблем](#решение-проблем)
 
 ---
 
-## Overview
+## Обзор
 
-Smart-Column S3 integrates seamlessly with Home Assistant using MQTT Discovery protocol. Once configured, all sensors and entities are automatically discovered and ready to use.
+Smart-Column S3 легко интегрируется с Home Assistant через протокол MQTT Discovery. После настройки все датчики и сущности обнаруживаются автоматически и готовы к использованию.
 
-### Features
+### Возможности
 
-- 🔍 **Automatic Discovery** - No manual entity configuration needed
-- 📊 **Real-time Monitoring** - Temperature, power, energy tracking
-- ⚡ **Energy Dashboard** - Track energy consumption over time
-- 🚨 **Automations** - Alerts and automatic actions
-- 📱 **Mobile Access** - Monitor from anywhere via HA app
-
----
-
-## Prerequisites
-
-### Required
-
-- Home Assistant installed and running
-- MQTT Broker (Mosquitto recommended)
-- Smart-Column S3 device on same network
-- Network connectivity between HA and device
-
-### Optional
-
-- Telegram bot for notifications
-- Node-RED for advanced automations
+- 🔍 **Автоматическое обнаружение** - Не требуется ручная настройка сущностей
+- 📊 **Мониторинг в реальном времени** - Температура, мощность, энергопотребление
+- ⚡ **Energy Dashboard** - Отслеживание потребления энергии
+- 🚨 **Автоматизации** - Оповещения и автоматические действия
+- 📱 **Мобильный доступ** - Мониторинг из любого места через приложение HA
 
 ---
 
-## MQTT Broker Setup
+## Требования
 
-### Option 1: Mosquitto Add-on (Recommended)
+### Обязательные
 
-1. **Install Mosquitto Broker**
-   - Navigate to: Settings → Add-ons → Add-on Store
-   - Search for "Mosquitto broker"
-   - Click Install
+- Home Assistant (установленный и работающий)
+- MQTT Брокер (рекомендуется Mosquitto)
+- Устройство Smart-Column S3 в той же сети
+- Сетевое подключение между HA и устройством
 
-2. **Configure Mosquitto**
+### Опциональные
 
-   Add-on Configuration:
+- Telegram бот для уведомлений
+- Node-RED для продвинутых автоматизаций
+
+---
+
+## Настройка MQTT брокера
+
+### Вариант 1: Дополнение Mosquitto (Рекомендуется)
+
+1. **Установка Mosquitto Broker**
+   - Перейдите в: Настройки → Дополнения → Магазин дополнений
+   - Найдите "Mosquitto broker"
+   - Нажмите "Установить"
+
+2. **Настройка Mosquitto**
+
+   Конфигурация дополнения:
    ```yaml
    logins:
      - username: mqtt_user
-       password: your_secure_password
+       password: ваш_надежный_пароль
    require_certificate: false
    certfile: fullchain.pem
    keyfile: privkey.pem
    ```
 
-3. **Start the Add-on**
-   - Enable "Start on boot"
-   - Click "START"
+3. **Запуск дополнения**
+   - Включите "Запускать при загрузке"
+   - Нажмите "ЗАПУСТИТЬ"
 
-4. **Verify Installation**
-   - Check the Log tab for successful startup
+4. **Проверка установки**
+   - Проверьте вкладку Журнал на успешный запуск
 
-### Option 2: External Mosquitto
+### Вариант 2: Внешний Mosquitto
 
-If running Mosquitto externally:
+Если используете внешний Mosquitto:
 
 ```bash
-# Install Mosquitto
+# Установка Mosquitto
 sudo apt-get install mosquitto mosquitto-clients
 
-# Create password file
+# Создание файла паролей
 sudo mosquitto_passwd -c /etc/mosquitto/passwd mqtt_user
 
-# Edit config
+# Редактирование конфигурации
 sudo nano /etc/mosquitto/mosquitto.conf
 ```
 
-Add:
+Добавьте:
 ```
 listener 1883
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 ```
 
-Restart:
+Перезапуск:
 ```bash
 sudo systemctl restart mosquitto
 ```
 
 ---
 
-## Device Configuration
+## Настройка устройства
 
-### Access Web Interface
+### Доступ к веб-интерфейсу
 
-1. Open browser: `http://<device-ip>`
-2. Navigate to Settings → MQTT
-3. Configure as follows:
+1. Откройте браузер: `http://<ip-устройства>`
+2. Перейдите в Настройки → MQTT
+3. Настройте следующим образом:
 
-### MQTT Settings
+### Параметры MQTT
 
-| Setting | Value | Example |
-|---------|-------|---------|
-| **Enable MQTT** | ☑ Enabled | |
-| **MQTT Server** | HA IP or hostname | `192.168.1.50` or `homeassistant.local` |
-| **MQTT Port** | Default: 1883 | `1883` |
-| **Username** | From Mosquitto config | `mqtt_user` |
-| **Password** | From Mosquitto config | `your_secure_password` |
-| **Base Topic** | Leave default | `smartcolumn` |
-| **Enable Discovery** | ☑ Enabled | |
-| **Publish Interval** | 10000 ms (10 sec) | `10000` |
+| Параметр | Значение | Пример |
+|----------|----------|--------|
+| **Включить MQTT** | ☑ Включено | |
+| **MQTT сервер** | IP HA или hostname | `192.168.1.50` или `homeassistant.local` |
+| **MQTT порт** | По умолчанию: 1883 | `1883` |
+| **Имя пользователя** | Из конфигурации Mosquitto | `mqtt_user` |
+| **Пароль** | Из конфигурации Mosquitto | `ваш_надежный_пароль` |
+| **Базовый топик** | Оставьте по умолчанию | `smartcolumn` |
+| **Включить Discovery** | ☑ Включено | |
+| **Интервал публикации** | 10000 мс (10 сек) | `10000` |
 
-4. Click **Save Settings**
-5. Device will restart and connect to MQTT broker
+4. Нажмите **Сохранить настройки**
+5. Устройство перезагрузится и подключится к MQTT брокеру
 
-### Verify Connection
+### Проверка подключения
 
-Check device logs:
+Проверьте журнал устройства:
 ```
-[MQTT] Connecting to 192.168.1.50:1883...
-[MQTT] Connected successfully
-[MQTT] Publishing discovery messages...
-[MQTT] Discovery complete - 6 entities published
+[MQTT] Подключение к 192.168.1.50:1883...
+[MQTT] Успешно подключено
+[MQTT] Публикация сообщений обнаружения...
+[MQTT] Обнаружение завершено - опубликовано 6 сущностей
 ```
 
 ---
 
-## Home Assistant Configuration
+## Настройка Home Assistant
 
-### Add MQTT Integration
+### Добавление интеграции MQTT
 
-1. **Navigate to Integrations**
-   - Settings → Devices & Services → Integrations
+1. **Перейдите в Интеграции**
+   - Настройки → Устройства и службы → Интеграции
 
-2. **Add MQTT**
-   - Click "+ ADD INTEGRATION"
-   - Search for "MQTT"
-   - Select "MQTT"
+2. **Добавить MQTT**
+   - Нажмите "+ ДОБАВИТЬ ИНТЕГРАЦИЮ"
+   - Найдите "MQTT"
+   - Выберите "MQTT"
 
-3. **Configure Connection**
+3. **Настройка подключения**
    ```
-   Broker: localhost (if using add-on) or IP address
-   Port: 1883
-   Username: mqtt_user
-   Password: your_secure_password
+   Брокер: localhost (если используете дополнение) или IP адрес
+   Порт: 1883
+   Имя пользователя: mqtt_user
+   Пароль: ваш_надежный_пароль
    ```
 
-4. **Enable Discovery**
-   - Discovery prefix: `homeassistant` (default)
-   - ☑ Enable newly added entities
+4. **Включить обнаружение**
+   - Префикс обнаружения: `homeassistant` (по умолчанию)
+   - ☑ Включить новые добавленные сущности
 
-5. **Submit**
+5. **Отправить**
 
-### Verify Auto-Discovery
+### Проверка автоматического обнаружения
 
-After device connects, check:
+После подключения устройства проверьте:
 
-**Settings → Devices & Services → MQTT**
+**Настройки → Устройства и службы → MQTT**
 
-You should see a new device:
+Вы должны увидеть новое устройство:
 ```
 Smart Column abc123
-  - Cube Temperature
-  - Column Top Temperature
-  - Voltage
-  - Current
-  - Power
-  - Energy
-  - System Health
+  - Температура куба
+  - Температура царги верх
+  - Напряжение
+  - Ток
+  - Мощность
+  - Энергия
+  - Здоровье системы
 ```
 
-If not visible, check [Troubleshooting](#troubleshooting).
+Если не видно, смотрите раздел [Решение проблем](#решение-проблем).
 
 ---
 
-## Dashboard Examples
+## Примеры панелей управления
 
-### Simple Status Card
+### Простая карточка состояния
 
 ```yaml
 type: entities
-title: Smart Column Status
+title: Статус Smart Column
 entities:
   - entity: sensor.smart_column_abc123_cube_temp
-    name: Cube Temperature
+    name: Температура куба
   - entity: sensor.smart_column_abc123_column_top
-    name: Column Top
+    name: Температура царги
   - entity: sensor.smart_column_abc123_voltage
-    name: Voltage
+    name: Напряжение
   - entity: sensor.smart_column_abc123_power
-    name: Power
+    name: Мощность
   - entity: sensor.smart_column_abc123_health
-    name: System Health
+    name: Здоровье системы
 ```
 
-### Temperature Gauge
+### Датчик температуры
 
 ```yaml
 type: gauge
 entity: sensor.smart_column_abc123_cube_temp
-name: Cube Temperature
+name: Температура куба
 min: 0
 max: 100
 severity:
@@ -223,17 +223,17 @@ severity:
 needle: true
 ```
 
-### Power Monitoring
+### Мониторинг мощности
 
 ```yaml
 type: vertical-stack
 cards:
   - type: gauge
     entity: sensor.smart_column_abc123_power
-    name: Current Power
+    name: Текущая мощность
     min: 0
     max: 5000
-    unit: W
+    unit: Вт
     severity:
       green: 0
       yellow: 2500
@@ -241,36 +241,36 @@ cards:
 
   - type: sensor
     entity: sensor.smart_column_abc123_energy
-    name: Total Energy
+    name: Всего энергии
     graph: line
     detail: 2
 ```
 
-### Historical Graph
+### График истории
 
 ```yaml
 type: history-graph
-title: Temperature History
+title: История температур
 hours_to_show: 24
 entities:
   - entity: sensor.smart_column_abc123_cube_temp
-    name: Cube
+    name: Куб
   - entity: sensor.smart_column_abc123_column_top
-    name: Column Top
+    name: Царга верх
 ```
 
-### Complete Dashboard
+### Полная панель управления
 
 ```yaml
 type: vertical-stack
-title: 🥃 Smart Column Monitor
+title: 🥃 Мониторинг Smart Column
 cards:
-  # Status Overview
+  # Обзор состояния
   - type: horizontal-stack
     cards:
       - type: gauge
         entity: sensor.smart_column_abc123_cube_temp
-        name: Cube
+        name: Куб
         min: 0
         max: 100
         severity:
@@ -280,7 +280,7 @@ cards:
 
       - type: gauge
         entity: sensor.smart_column_abc123_health
-        name: Health
+        name: Здоровье
         min: 0
         max: 100
         severity:
@@ -288,45 +288,45 @@ cards:
           yellow: 50
           green: 80
 
-  # Power Monitoring
+  # Мониторинг мощности
   - type: horizontal-stack
     cards:
       - type: entity
         entity: sensor.smart_column_abc123_voltage
-        name: Voltage
+        name: Напряжение
         icon: mdi:flash
 
       - type: entity
         entity: sensor.smart_column_abc123_current
-        name: Current
+        name: Ток
         icon: mdi:current-ac
 
       - type: entity
         entity: sensor.smart_column_abc123_power
-        name: Power
+        name: Мощность
         icon: mdi:lightning-bolt
 
-  # Temperature History
+  # История температур
   - type: history-graph
-    title: Temperature Trends
+    title: Тренды температур
     hours_to_show: 12
     entities:
       - sensor.smart_column_abc123_cube_temp
       - sensor.smart_column_abc123_column_top
 
-  # Energy Consumption
+  # Потребление энергии
   - type: energy-date-selection
   - type: energy-sources-table
 ```
 
 ---
 
-## Automations
+## Автоматизации
 
-### Alert on High Temperature
+### Оповещение о высокой температуре
 
 ```yaml
-alias: Smart Column - High Temperature Alert
+alias: Smart Column - Оповещение о высокой температуре
 trigger:
   - platform: numeric_state
     entity_id: sensor.smart_column_abc123_cube_temp
@@ -335,18 +335,18 @@ condition: []
 action:
   - service: notify.mobile_app
     data:
-      title: ⚠️ Smart Column Alert
-      message: "Cube temperature critical: {{ states('sensor.smart_column_abc123_cube_temp') }}°C"
+      title: ⚠️ Оповещение Smart Column
+      message: "Критическая температура куба: {{ states('sensor.smart_column_abc123_cube_temp') }}°C"
       data:
         priority: high
         ttl: 0
 mode: single
 ```
 
-### Low System Health Warning
+### Предупреждение о низком здоровье системы
 
 ```yaml
-alias: Smart Column - Low Health Warning
+alias: Smart Column - Предупреждение о низком здоровье
 trigger:
   - platform: numeric_state
     entity_id: sensor.smart_column_abc123_health
@@ -355,23 +355,23 @@ condition: []
 action:
   - service: notify.persistent_notification
     data:
-      title: Smart Column Health Low
-      message: "System health at {{ states('sensor.smart_column_abc123_health') }}%. Please check device."
+      title: Низкое здоровье Smart Column
+      message: "Здоровье системы {{ states('sensor.smart_column_abc123_health') }}%. Пожалуйста, проверьте устройство."
   - service: persistent_notification.create
     data:
       title: ⚠️ Smart Column
-      message: "Health: {{ states('sensor.smart_column_abc123_health') }}%"
+      message: "Здоровье: {{ states('sensor.smart_column_abc123_health') }}%"
 mode: single
 ```
 
-### Telegram Notification on Process Complete
+### Уведомление Telegram о завершении процесса
 
 ```yaml
-alias: Smart Column - Process Complete
+alias: Smart Column - Процесс завершён
 trigger:
   - platform: state
     entity_id: sensor.smart_column_abc123_cube_temp
-    to: "25.0"  # Temperature returns to room temp
+    to: "25.0"
     for:
       minutes: 10
 condition:
@@ -381,20 +381,20 @@ action:
   - service: telegram_bot.send_message
     data:
       message: |
-        ✅ Rectification process completed!
+        ✅ Процесс ректификации завершён!
 
-        Final Stats:
-        🌡️ Cube: {{ states('sensor.smart_column_abc123_cube_temp') }}°C
-        ⚡ Energy used: {{ states('sensor.smart_column_abc123_energy') }} kWh
+        Итоговая статистика:
+        🌡️ Куб: {{ states('sensor.smart_column_abc123_cube_temp') }}°C
+        ⚡ Использовано энергии: {{ states('sensor.smart_column_abc123_energy') }} кВт⋅ч
 
-        Device is cooling down.
+        Устройство охлаждается.
 mode: single
 ```
 
-### Power Limit Protection
+### Защита от превышения мощности
 
 ```yaml
-alias: Smart Column - Power Limit
+alias: Smart Column - Превышение мощности
 trigger:
   - platform: numeric_state
     entity_id: sensor.smart_column_abc123_power
@@ -403,20 +403,20 @@ condition: []
 action:
   - service: notify.mobile_app
     data:
-      title: ⚠️ Power Limit Exceeded
-      message: "Current: {{ states('sensor.smart_column_abc123_power') }}W"
+      title: ⚠️ Превышение лимита мощности
+      message: "Текущая мощность: {{ states('sensor.smart_column_abc123_power') }}Вт"
       data:
         priority: high
         actions:
           - action: STOP_COLUMN
-            title: Stop Device
+            title: Остановить устройство
 mode: single
 ```
 
-### Daily Energy Report
+### Ежедневный отчёт об энергии
 
 ```yaml
-alias: Smart Column - Daily Report
+alias: Smart Column - Ежедневный отчёт
 trigger:
   - platform: time
     at: "23:00:00"
@@ -427,10 +427,10 @@ action:
   - service: notify.telegram
     data:
       message: |
-        📊 Smart Column Daily Report
+        📊 Ежедневный отчёт Smart Column
 
-        ⚡ Energy today: {{ states('sensor.smart_column_abc123_energy') }} kWh
-        🌡️ Max temp: {{ state_attr('sensor.smart_column_abc123_cube_temp', 'max_value') }}°C
+        ⚡ Энергия за сегодня: {{ states('sensor.smart_column_abc123_energy') }} кВт⋅ч
+        🌡️ Макс. температура: {{ state_attr('sensor.smart_column_abc123_cube_temp', 'max_value') }}°C
 
         {{ now().strftime('%Y-%m-%d') }}
 mode: single
@@ -440,53 +440,53 @@ mode: single
 
 ## Energy Dashboard
 
-### Setup
+### Настройка
 
-1. **Navigate to Energy Dashboard**
-   - Settings → Dashboards → Energy
+1. **Перейдите в Energy Dashboard**
+   - Настройки → Панели управления → Энергия
 
-2. **Add Electricity Grid**
-   - Click "Add Consumption"
-   - Select "Individual Devices"
+2. **Добавить электрическую сеть**
+   - Нажмите "Добавить потребление"
+   - Выберите "Отдельные устройства"
 
-3. **Select Smart Column Energy Sensor**
-   - Choose: `sensor.smart_column_abc123_energy`
-   - Unit: kWh
-   - Click "Save"
+3. **Выбрать датчик энергии Smart Column**
+   - Выберите: `sensor.smart_column_abc123_energy`
+   - Единица: кВт⋅ч
+   - Нажмите "Сохранить"
 
-4. **Configure Cost (Optional)**
-   - Set your electricity rate
-   - Example: €0.15/kWh
+4. **Настроить стоимость (Опционально)**
+   - Установите тариф на электроэнергию
+   - Пример: 5.50 ₽/кВт⋅ч
 
-### Energy Tracking
+### Отслеживание энергии
 
-The device reports cumulative energy consumption. The sensor uses `state_class: total_increasing` which is perfect for Energy Dashboard.
+Устройство сообщает накопительное энергопотребление. Датчик использует `state_class: total_increasing`, что идеально подходит для Energy Dashboard.
 
-**Features:**
-- Daily/Monthly/Yearly consumption graphs
-- Cost calculation
-- Compare with other devices
-- Export data to CSV
+**Возможности:**
+- Графики потребления за день/месяц/год
+- Расчёт стоимости
+- Сравнение с другими устройствами
+- Экспорт данных в CSV
 
-### Advanced: Per-Process Energy Tracking
+### Продвинуто: Отслеживание энергии по процессам
 
-Create utility meters for process-specific tracking:
+Создайте utility meters для отслеживания по конкретным процессам:
 
 ```yaml
 utility_meter:
   smart_column_process_energy:
     source: sensor.smart_column_abc123_energy
-    cycle: none  # Manual reset
+    cycle: none  # Ручной сброс
 
   smart_column_daily:
     source: sensor.smart_column_abc123_energy
     cycle: daily
 ```
 
-Automation to reset per-process meter:
+Автоматизация для сброса счётчика процесса:
 
 ```yaml
-alias: Smart Column - Reset Process Energy
+alias: Smart Column - Сброс счётчика энергии процесса
 trigger:
   - platform: state
     entity_id: sensor.smart_column_abc123_power
@@ -502,157 +502,157 @@ action:
 
 ---
 
-## Troubleshooting
+## Решение проблем
 
-### Device Not Discovered
+### Устройство не обнаружено
 
-**Check MQTT connection:**
-1. Device Web UI → Status
-2. Look for "MQTT: Connected"
+**Проверьте MQTT подключение:**
+1. Веб-интерфейс устройства → Статус
+2. Ищите "MQTT: Подключено"
 
-**Check Home Assistant MQTT logs:**
+**Проверьте журналы Home Assistant MQTT:**
 ```
-Settings → System → Logs
-Filter: mqtt
+Настройки → Система → Журналы
+Фильтр: mqtt
 ```
 
-**Manually listen to topics:**
+**Вручную прослушайте топики:**
 ```bash
-mosquitto_sub -h localhost -u mqtt_user -P password -t 'smartcolumn/#' -v
+mosquitto_sub -h localhost -u mqtt_user -P пароль -t 'smartcolumn/#' -v
 ```
 
-Expected output:
+Ожидаемый вывод:
 ```
 smartcolumn/abc123/state {"mode":0,"temperatures":{...}}
 smartcolumn/abc123/health 95
 smartcolumn/abc123/status online
 ```
 
-### Entities Show "Unavailable"
+### Сущности показывают "Недоступно"
 
-**Possible causes:**
+**Возможные причины:**
 
-1. **Device offline**
-   - Check device network connectivity
-   - Ping device IP
+1. **Устройство офлайн**
+   - Проверьте сетевое подключение устройства
+   - Пингуйте IP устройства
 
-2. **MQTT broker down**
-   - Settings → Add-ons → Mosquitto broker
-   - Check status and logs
+2. **MQTT брокер не работает**
+   - Настройки → Дополнения → Mosquitto broker
+   - Проверьте статус и журналы
 
-3. **Wrong credentials**
-   - Verify username/password match
-   - Check Mosquitto logs for auth failures
+3. **Неверные учётные данные**
+   - Проверьте совпадение username/password
+   - Проверьте журналы Mosquitto на ошибки аутентификации
 
-### Discovery Messages Not Received
+### Сообщения обнаружения не получены
 
-**Force republish:**
+**Принудительная повторная публикация:**
 
-1. Device Web UI → Settings → MQTT
-2. Uncheck "Enable Discovery"
-3. Save
-4. Check "Enable Discovery"
-5. Save
+1. Веб-интерфейс устройства → Настройки → MQTT
+2. Снимите галочку "Включить Discovery"
+3. Сохранить
+4. Поставьте галочку "Включить Discovery"
+5. Сохранить
 
-Device will republish all discovery messages.
+Устройство повторно опубликует все сообщения обнаружения.
 
-**Manual discovery check:**
+**Ручная проверка обнаружения:**
 
 ```bash
-mosquitto_sub -h localhost -u mqtt_user -P password -t 'homeassistant/#' -v
+mosquitto_sub -h localhost -u mqtt_user -P пароль -t 'homeassistant/#' -v
 ```
 
-Should see messages like:
+Должны появиться сообщения вида:
 ```
-homeassistant/sensor/abc123_cube_temp/config {"name":"Cube Temperature",...}
+homeassistant/sensor/abc123_cube_temp/config {"name":"Температура куба",...}
 ```
 
-### Energy Values Not Updating
+### Значения энергии не обновляются
 
-**Verify energy sensor:**
-- Developer Tools → States
-- Find: `sensor.smart_column_abc123_energy`
-- Check `state_class: total_increasing`
+**Проверьте датчик энергии:**
+- Инструменты разработчика → Состояния
+- Найдите: `sensor.smart_column_abc123_energy`
+- Проверьте `state_class: total_increasing`
 
-**Check Energy Dashboard settings:**
-- Energy → Settings
-- Verify sensor is added
-- Check unit is kWh
+**Проверьте настройки Energy Dashboard:**
+- Энергия → Настройки
+- Убедитесь, что датчик добавлен
+- Проверьте единицу измерения: кВт⋅ч
 
-**Force update:**
-- Device Web UI → Reboot
-- Wait for reconnection
-- Check Energy Dashboard after 1 minute
+**Принудительное обновление:**
+- Веб-интерфейс устройства → Перезагрузка
+- Дождитесь переподключения
+- Проверьте Energy Dashboard через 1 минуту
 
-### High MQTT Traffic
+### Высокий трафик MQTT
 
-**Reduce publish interval:**
+**Уменьшите интервал публикации:**
 
-Device Web UI → Settings → MQTT:
-- Increase "Publish Interval"
-- Recommended: 10000-30000 ms
-- Save
+Веб-интерфейс устройства → Настройки → MQTT:
+- Увеличьте "Интервал публикации"
+- Рекомендуется: 10000-30000 мс
+- Сохранить
 
-**QoS Settings:**
+**Настройки QoS:**
 
-For lower priority data, use QoS 0 instead of QoS 1.
+Для данных с низким приоритетом используйте QoS 0 вместо QoS 1.
 
 ---
 
-## Best Practices
+## Лучшие практики
 
-### Performance
+### Производительность
 
-- Use publish interval ≥ 10 seconds
-- Enable discovery only when needed
-- Use QoS 0 for high-frequency data
+- Используйте интервал публикации ≥ 10 секунд
+- Включайте обнаружение только когда необходимо
+- Используйте QoS 0 для высокочастотных данных
 
-### Security
+### Безопасность
 
-- Use strong MQTT passwords
-- Enable authentication on broker
-- Use TLS for external access
-- Keep firmware updated
+- Используйте надёжные пароли MQTT
+- Включите аутентификацию на брокере
+- Используйте TLS для внешнего доступа
+- Держите прошивку обновлённой
 
-### Reliability
+### Надёжность
 
-- Enable "Start on boot" for Mosquitto
-- Use persistent MQTT sessions
-- Configure LWT for availability tracking
-- Regular device reboots (monthly)
+- Включите "Запускать при загрузке" для Mosquitto
+- Используйте постоянные MQTT сессии
+- Настройте LWT для отслеживания доступности
+- Регулярные перезагрузки устройства (ежемесячно)
 
-### Monitoring
+### Мониторинг
 
-- Create health check automation
-- Monitor energy consumption trends
-- Set up alerts for critical values
-- Log important events
+- Создайте автоматизацию проверки здоровья
+- Отслеживайте тренды энергопотребления
+- Настройте оповещения для критических значений
+- Логируйте важные события
 
 ---
 
-## Additional Resources
+## Дополнительные ресурсы
 
-### Official Docs
+### Официальная документация
 - [Home Assistant MQTT](https://www.home-assistant.io/integrations/mqtt/)
 - [MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/)
 - [Energy Dashboard](https://www.home-assistant.io/docs/energy/)
 
-### Community
-- [Home Assistant Forums](https://community.home-assistant.io/)
+### Сообщество
+- [Форумы Home Assistant](https://community.home-assistant.io/)
 - [r/homeassistant](https://reddit.com/r/homeassistant)
 
-### Tools
-- [MQTT Explorer](http://mqtt-explorer.com/) - Desktop MQTT client
-- [Node-RED](https://nodered.org/) - Visual automation flows
+### Инструменты
+- [MQTT Explorer](http://mqtt-explorer.com/) - Desktop MQTT клиент
+- [Node-RED](https://nodered.org/) - Визуальные потоки автоматизации
 
 ---
 
-## Example: Complete Setup Script
+## Пример: Полная настройка через configuration.yaml
 
-For advanced users, here's a complete setup using `configuration.yaml`:
+Для продвинутых пользователей, вот полная настройка через `configuration.yaml`:
 
 ```yaml
-# MQTT Configuration
+# Конфигурация MQTT
 mqtt:
   broker: localhost
   port: 1883
@@ -667,7 +667,7 @@ mqtt:
     topic: 'hass/status'
     payload: 'offline'
 
-# Utility Meters for Energy Tracking
+# Utility Meters для отслеживания энергии
 utility_meter:
   smart_column_daily_energy:
     source: sensor.smart_column_abc123_energy
@@ -677,15 +677,15 @@ utility_meter:
     source: sensor.smart_column_abc123_energy
     cycle: monthly
 
-# Template Sensors
+# Шаблонные датчики
 template:
   - sensor:
-      - name: "Smart Column Status"
+      - name: "Статус Smart Column"
         state: >
           {% if states('sensor.smart_column_abc123_power') | float > 100 %}
-            Running
+            Работает
           {% else %}
-            Idle
+            Простой
           {% endif %}
         icon: >
           {% if states('sensor.smart_column_abc123_power') | float > 100 %}
@@ -694,14 +694,14 @@ template:
             mdi:flask-empty-outline
           {% endif %}
 
-      - name: "Smart Column Efficiency"
+      - name: "Эффективность Smart Column"
         unit_of_measurement: "%"
         state: >
           {{ states('sensor.smart_column_abc123_health') }}
 
-# Automations
+# Автоматизации
 automation:
-  - alias: Smart Column Alert - High Temp
+  - alias: Smart Column Оповещение - Высокая температура
     trigger:
       - platform: numeric_state
         entity_id: sensor.smart_column_abc123_cube_temp
@@ -709,11 +709,11 @@ automation:
     action:
       - service: notify.mobile_app
         data:
-          title: "⚠️ High Temperature"
+          title: "⚠️ Высокая температура"
           message: "{{ states('sensor.smart_column_abc123_cube_temp') }}°C"
 ```
 
 ---
 
-*Last updated: 2025-12-06*
-*For support: Check device logs or open GitHub issue*
+*Последнее обновление: 2025-12-06*
+*Для поддержки: Проверьте журналы устройства или создайте issue на GitHub*

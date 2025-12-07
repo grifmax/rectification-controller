@@ -1,39 +1,39 @@
-# Smart-Column S3 — API Documentation
+# Smart-Column S3 — Документация API
 
-**Version:** 1.2+
-**Last Updated:** 2025-12-06
+**Версия:** 1.2+
+**Последнее обновление:** 2025-12-06
 
-## Table of Contents
+## Содержание
 
 1. [REST API](#rest-api)
 2. [WebSocket API](#websocket-api)
-3. [MQTT Integration](#mqtt-integration)
-4. [Authentication](#authentication)
-5. [Rate Limiting](#rate-limiting)
-6. [Error Codes](#error-codes)
-7. [Examples](#examples)
+3. [MQTT интеграция](#mqtt-интеграция)
+4. [Аутентификация](#аутентификация)
+5. [Ограничение запросов](#ограничение-запросов)
+6. [Коды ошибок](#коды-ошибок)
+7. [Примеры использования](#примеры-использования)
 
 ---
 
 ## REST API
 
-All REST API endpoints are available at `http://<device-ip>/api/`
+Все REST API эндпоинты доступны по адресу `http://<ip-устройства>/api/`
 
-### Authentication
+### Аутентификация
 
-Most endpoints require HTTP Basic Authentication (if enabled in settings).
+Большинство эндпоинтов требуют HTTP Basic Authentication (если включено в настройках).
 
 ```http
 Authorization: Basic <base64(username:password)>
 ```
 
-### Endpoints
+### Эндпоинты
 
 #### GET /api/status
 
-Get current system status.
+Получить текущее состояние системы.
 
-**Response:**
+**Ответ:**
 ```json
 {
   "mode": 0,
@@ -61,9 +61,9 @@ Get current system status.
 
 #### GET /api/health
 
-Get system health status (0-100%).
+Получить статус здоровья системы (0-100%).
 
-**Response:**
+**Ответ:**
 ```json
 {
   "health": 95,
@@ -80,9 +80,9 @@ Get system health status (0-100%).
 
 #### GET /api/sensors
 
-Get raw sensor readings.
+Получить показания всех датчиков.
 
-**Response:**
+**Ответ:**
 ```json
 {
   "ds18b20": [78.5, 75.2, 82.1, 80.5, 45.2, 18.5, 25.3],
@@ -97,9 +97,9 @@ Get raw sensor readings.
 
 #### POST /api/mode/start
 
-Start a specific mode.
+Запустить выбранный режим работы.
 
-**Request:**
+**Запрос:**
 ```json
 {
   "mode": 0,
@@ -111,38 +111,38 @@ Start a specific mode.
 }
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "success": true,
-  "message": "Rectification mode started"
+  "message": "Режим ректификации запущен"
 }
 ```
 
 #### POST /api/mode/stop
 
-Stop current operation.
+Остановить текущую операцию.
 
-**Response:**
+**Ответ:**
 ```json
 {
   "success": true,
-  "message": "Operation stopped"
+  "message": "Операция остановлена"
 }
 ```
 
 #### POST /api/heater/power
 
-Set heater power (0-100%).
+Установить мощность нагревателя (0-100%).
 
-**Request:**
+**Запрос:**
 ```json
 {
   "power": 85
 }
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "success": true,
@@ -152,16 +152,16 @@ Set heater power (0-100%).
 
 #### POST /api/pump/speed
 
-Set pump speed (ml/hour).
+Установить скорость насоса (мл/час).
 
-**Request:**
+**Запрос:**
 ```json
 {
   "speed": 120
 }
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "success": true,
@@ -171,9 +171,9 @@ Set pump speed (ml/hour).
 
 #### GET /api/calibration
 
-Get calibration data.
+Получить данные калибровки.
 
-**Response:**
+**Ответ:**
 ```json
 {
   "ds18b20_offsets": [0.0, -0.2, 0.1, 0.0, -0.1, 0.0, 0.2],
@@ -186,9 +186,9 @@ Get calibration data.
 
 #### POST /api/calibration
 
-Update calibration data.
+Обновить данные калибровки.
 
-**Request:**
+**Запрос:**
 ```json
 {
   "ds18b20_offsets": [0.0, -0.2, 0.1, 0.0, -0.1, 0.0, 0.2],
@@ -196,19 +196,19 @@ Update calibration data.
 }
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "success": true,
-  "message": "Calibration updated"
+  "message": "Калибровка обновлена"
 }
 ```
 
 #### GET /api/system/info
 
-Get system information.
+Получить информацию о системе.
 
-**Response:**
+**Ответ:**
 ```json
 {
   "firmware_version": "1.2.1",
@@ -222,13 +222,13 @@ Get system information.
 
 #### POST /api/system/reboot
 
-Reboot the device.
+Перезагрузить устройство.
 
-**Response:**
+**Ответ:**
 ```json
 {
   "success": true,
-  "message": "Rebooting in 3 seconds"
+  "message": "Перезагрузка через 3 секунды"
 }
 ```
 
@@ -236,15 +236,15 @@ Reboot the device.
 
 ## WebSocket API
 
-Connect to WebSocket at `ws://<device-ip>/ws`
+Подключение по адресу `ws://<ip-устройства>/ws`
 
-### Message Format
+### Формат сообщений
 
-All messages are JSON formatted.
+Все сообщения в формате JSON.
 
-#### Server → Client (Status Updates)
+#### Сервер → Клиент (Обновления статуса)
 
-Sent every 1 second during operation.
+Отправляется каждую 1 секунду во время работы.
 
 ```json
 {
@@ -260,7 +260,7 @@ Sent every 1 second during operation.
 }
 ```
 
-#### Server → Client (Events)
+#### Сервер → Клиент (События)
 
 ```json
 {
@@ -274,7 +274,7 @@ Sent every 1 second during operation.
 }
 ```
 
-#### Client → Server (Commands)
+#### Клиент → Сервер (Команды)
 
 ```json
 {
@@ -300,25 +300,25 @@ Sent every 1 second during operation.
 
 ---
 
-## MQTT Integration
+## MQTT интеграция
 
-### Connection
+### Подключение
 
 ```
-Server: <mqtt_broker>
-Port: 1883 (default)
-Username: <mqtt_username> (optional)
-Password: <mqtt_password> (optional)
+Сервер: <mqtt_broker>
+Порт: 1883 (по умолчанию)
+Имя пользователя: <mqtt_username> (опционально)
+Пароль: <mqtt_password> (опционально)
 ```
 
-### Topics Structure
+### Структура топиков
 
-#### State Topic
+#### Топик состояния
 ```
 smartcolumn/<device_id>/state
 ```
 
-**Payload Example:**
+**Пример полезной нагрузки:**
 ```json
 {
   "mode": 0,
@@ -336,42 +336,42 @@ smartcolumn/<device_id>/state
 }
 ```
 
-**Published:** Every 10 seconds (configurable)
+**Публикуется:** Каждые 10 секунд (настраивается)
 
-#### Health Topic
+#### Топик здоровья
 ```
 smartcolumn/<device_id>/health
 ```
 
-**Payload:** `95` (percentage 0-100)
-**Published:** Every 5 seconds
+**Полезная нагрузка:** `95` (процент 0-100)
+**Публикуется:** Каждые 5 секунд
 
-#### Availability Topic
+#### Топик доступности
 ```
 smartcolumn/<device_id>/status
 ```
 
-**Payload:** `online` or `offline`
-**Retained:** Yes
-**LWT:** Yes
+**Полезная нагрузка:** `online` или `offline`
+**Retained:** Да
+**LWT:** Да
 
 ### Home Assistant MQTT Discovery
 
-The device automatically publishes discovery messages to Home Assistant.
+Устройство автоматически публикует сообщения обнаружения для Home Assistant.
 
-#### Discovery Topic Format
+#### Формат топика обнаружения
 ```
 homeassistant/sensor/<device_id>_<entity>/config
 ```
 
-#### Example Discovery Message (Temperature Sensor)
+#### Пример сообщения обнаружения (Датчик температуры)
 
-**Topic:** `homeassistant/sensor/abc123_cube_temp/config`
+**Топик:** `homeassistant/sensor/abc123_cube_temp/config`
 
-**Payload:**
+**Полезная нагрузка:**
 ```json
 {
-  "name": "Cube Temperature",
+  "name": "Температура куба",
   "uniq_id": "abc123_cube_temp",
   "stat_t": "smartcolumn/abc123/state",
   "val_tpl": "{{ value_json.temperatures.cube }}",
@@ -388,31 +388,31 @@ homeassistant/sensor/<device_id>_<entity>/config
 }
 ```
 
-#### Available Entities
+#### Доступные сущности
 
-| Entity | Device Class | Unit | State Class |
-|--------|--------------|------|-------------|
-| Cube Temperature | temperature | °C | measurement |
-| Column Top Temperature | temperature | °C | measurement |
-| Voltage | voltage | V | measurement |
-| Current | current | A | measurement |
-| Power | power | W | measurement |
-| Energy | energy | kWh | total_increasing |
-| System Health | None | % | measurement |
+| Сущность | Класс устройства | Единица | Класс состояния |
+|----------|------------------|---------|-----------------|
+| Температура куба | temperature | °C | measurement |
+| Температура царги верх | temperature | °C | measurement |
+| Напряжение | voltage | V | measurement |
+| Ток | current | A | measurement |
+| Мощность | power | W | measurement |
+| Энергия | energy | kWh | total_increasing |
+| Здоровье системы | None | % | measurement |
 
 ---
 
-## Authentication
+## Аутентификация
 
 ### HTTP Basic Authentication
 
-When authentication is enabled, all HTTP requests must include:
+Когда аутентификация включена, все HTTP запросы должны содержать:
 
 ```http
 Authorization: Basic <base64(username:password)>
 ```
 
-### Example (Python)
+### Пример (Python)
 ```python
 import requests
 from requests.auth import HTTPBasicAuth
@@ -423,12 +423,12 @@ response = requests.get(
 )
 ```
 
-### Example (cURL)
+### Пример (cURL)
 ```bash
 curl -u admin:password http://192.168.1.100/api/status
 ```
 
-### Example (JavaScript)
+### Пример (JavaScript)
 ```javascript
 fetch('http://192.168.1.100/api/status', {
   headers: {
@@ -439,53 +439,53 @@ fetch('http://192.168.1.100/api/status', {
 
 ---
 
-## Rate Limiting
+## Ограничение запросов
 
-The system implements rate limiting to prevent abuse.
+Система реализует ограничение частоты запросов для защиты от злоупотреблений.
 
-**Limits:**
-- 60 requests per minute per IP address
-- Applies to all HTTP endpoints
+**Лимиты:**
+- 60 запросов в минуту с одного IP-адреса
+- Применяется ко всем HTTP эндпоинтам
 
-**Response when exceeded:**
+**Ответ при превышении:**
 ```http
 HTTP/1.1 429 Too Many Requests
 Content-Type: application/json
 
 {
-  "error": "Rate limit exceeded",
+  "error": "Превышен лимит запросов",
   "retry_after": 45
 }
 ```
 
 ---
 
-## Error Codes
+## Коды ошибок
 
-| HTTP Code | Meaning |
-|-----------|---------|
-| 200 | Success |
-| 400 | Bad Request - Invalid parameters |
-| 401 | Unauthorized - Authentication required or failed |
-| 404 | Not Found - Endpoint doesn't exist |
-| 429 | Too Many Requests - Rate limit exceeded |
-| 500 | Internal Server Error |
+| HTTP код | Значение |
+|----------|----------|
+| 200 | Успешно |
+| 400 | Неверный запрос - Некорректные параметры |
+| 401 | Не авторизован - Требуется аутентификация или неверные данные |
+| 404 | Не найдено - Эндпоинт не существует |
+| 429 | Слишком много запросов - Превышен лимит |
+| 500 | Внутренняя ошибка сервера |
 
-### Error Response Format
+### Формат ответа с ошибкой
 
 ```json
 {
-  "error": "Error message",
+  "error": "Сообщение об ошибке",
   "code": 400,
-  "details": "Additional information"
+  "details": "Дополнительная информация"
 }
 ```
 
 ---
 
-## Examples
+## Примеры использования
 
-### Python - Get Status and Control
+### Python - Получение статуса и управление
 
 ```python
 import requests
@@ -495,18 +495,18 @@ import time
 BASE_URL = 'http://192.168.1.100'
 auth = HTTPBasicAuth('admin', 'password')
 
-# Get current status
+# Получить текущий статус
 status = requests.get(f'{BASE_URL}/api/status', auth=auth).json()
-print(f"Current temperature: {status['temperatures']['cube']}°C")
+print(f"Текущая температура: {status['temperatures']['cube']}°C")
 
-# Set heater power
+# Установить мощность нагревателя
 requests.post(
     f'{BASE_URL}/api/heater/power',
     json={'power': 75},
     auth=auth
 )
 
-# Start rectification mode
+# Запустить режим ректификации
 requests.post(
     f'{BASE_URL}/api/mode/start',
     json={
@@ -519,14 +519,14 @@ requests.post(
     auth=auth
 )
 
-# Monitor status
+# Мониторинг статуса
 while True:
     status = requests.get(f'{BASE_URL}/api/status', auth=auth).json()
-    print(f"Cube: {status['temperatures']['cube']}°C, Power: {status['power']['power']}W")
+    print(f"Куб: {status['temperatures']['cube']}°C, Мощность: {status['power']['power']}Вт")
     time.sleep(5)
 ```
 
-### Node.js - MQTT Subscribe
+### Node.js - Подписка на MQTT
 
 ```javascript
 const mqtt = require('mqtt');
@@ -537,7 +537,7 @@ const client = mqtt.connect('mqtt://localhost:1883', {
 });
 
 client.on('connect', () => {
-  // Subscribe to all topics for device
+  // Подписаться на все топики устройства
   client.subscribe('smartcolumn/abc123/#');
 });
 
@@ -546,15 +546,15 @@ client.on('message', (topic, message) => {
 
   if (topic.endsWith('/state')) {
     const state = JSON.parse(message.toString());
-    console.log(`Cube temp: ${state.temperatures.cube}°C`);
-    console.log(`Power: ${state.power.power}W`);
+    console.log(`Температура куба: ${state.temperatures.cube}°C`);
+    console.log(`Мощность: ${state.power.power}Вт`);
   }
 
   if (topic.endsWith('/health')) {
     const health = parseInt(message.toString());
-    console.log(`System health: ${health}%`);
+    console.log(`Здоровье системы: ${health}%`);
     if (health < 80) {
-      console.warn('Warning: Low system health!');
+      console.warn('Внимание: Низкое здоровье системы!');
     }
   }
 });
@@ -562,12 +562,12 @@ client.on('message', (topic, message) => {
 
 ### Home Assistant - Energy Dashboard
 
-Add to `configuration.yaml`:
+Добавьте в `configuration.yaml`:
 
 ```yaml
 mqtt:
   sensor:
-    - name: "Smart Column Energy"
+    - name: "Smart Column Энергия"
       state_topic: "smartcolumn/abc123/state"
       value_template: "{{ value_json.power.energy }}"
       unit_of_measurement: "kWh"
@@ -575,16 +575,119 @@ mqtt:
       state_class: total_increasing
 ```
 
-Then add to Energy Dashboard:
-1. Settings → Dashboards → Energy
-2. Add Energy Source
-3. Select "Smart Column Energy"
+Затем добавьте в Energy Dashboard:
+1. Настройки → Панели управления → Энергия
+2. Добавить источник энергии
+3. Выбрать "Smart Column Энергия"
+
+### JavaScript - WebSocket подключение
+
+```javascript
+const ws = new WebSocket('ws://192.168.1.100/ws');
+
+ws.onopen = () => {
+  console.log('WebSocket подключен');
+
+  // Отправить команду
+  ws.send(JSON.stringify({
+    command: 'set_power',
+    value: 85
+  }));
+};
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+
+  if (data.type === 'status') {
+    console.log(`Температура: ${data.data.temperatures.cube}°C`);
+    console.log(`Мощность: ${data.data.power.power}Вт`);
+  }
+
+  if (data.type === 'event') {
+    console.log(`Событие: ${data.event}`);
+    console.log(`Данные:`, data.data);
+  }
+};
+
+ws.onerror = (error) => {
+  console.error('WebSocket ошибка:', error);
+};
+
+ws.onclose = () => {
+  console.log('WebSocket отключен');
+};
+```
+
+### cURL - Примеры команд
+
+```bash
+# Получить статус
+curl -u admin:password http://192.168.1.100/api/status
+
+# Получить здоровье системы
+curl -u admin:password http://192.168.1.100/api/health
+
+# Установить мощность нагревателя
+curl -u admin:password \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"power": 75}' \
+  http://192.168.1.100/api/heater/power
+
+# Запустить ректификацию
+curl -u admin:password \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"mode": 0, "params": {"heads_percent": 8, "body_speed": 100}}' \
+  http://192.168.1.100/api/mode/start
+
+# Остановить процесс
+curl -u admin:password \
+  -X POST \
+  http://192.168.1.100/api/mode/stop
+
+# Получить информацию о системе
+curl -u admin:password http://192.168.1.100/api/system/info
+```
+
+### Python - MQTT публикация и подписка
+
+```python
+import paho.mqtt.client as mqtt
+import json
+
+def on_connect(client, userdata, flags, rc):
+    print(f"Подключено с кодом результата {rc}")
+    # Подписаться на все топики устройства
+    client.subscribe("smartcolumn/abc123/#")
+
+def on_message(client, userdata, msg):
+    print(f"{msg.topic}: {msg.payload.decode()}")
+
+    if msg.topic.endswith('/state'):
+        state = json.loads(msg.payload.decode())
+        temp = state['temperatures']['cube']
+        power = state['power']['power']
+        print(f"Куб: {temp}°C, Мощность: {power}Вт")
+
+        # Проверка на превышение температуры
+        if temp > 95:
+            print("⚠️ ВНИМАНИЕ: Высокая температура!")
+
+client = mqtt.Client()
+client.username_pw_set("mqtt_user", "mqtt_pass")
+client.on_connect = on_connect
+client.on_message = on_message
+
+client.connect("192.168.1.100", 1883, 60)
+client.loop_forever()
+```
 
 ---
 
-## Security Headers
+## Заголовки безопасности
 
-All HTTP responses include security headers:
+Все HTTP ответы включают заголовки безопасности:
 
 ```http
 Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'
@@ -597,27 +700,27 @@ Permissions-Policy: geolocation=(), microphone=(), camera=()
 
 ---
 
-## Changelog
+## История изменений
 
 ### v1.2.1 (2025-12-06)
-- Added MQTT integration
-- Added Home Assistant MQTT Discovery
-- Added HTTP Basic Authentication
-- Added Rate Limiting (60 req/min)
-- Added Security Headers
-- Added `/api/health` endpoint
+- Добавлена MQTT интеграция
+- Добавлено Home Assistant MQTT Discovery
+- Добавлена HTTP Basic Authentication
+- Добавлено ограничение запросов (60 req/min)
+- Добавлены заголовки безопасности
+- Добавлен эндпоинт `/api/health`
 
 ### v1.2.0 (2025-12-05)
-- Added PZEM-004T power monitoring
-- Added energy tracking
-- Added WebSocket health updates
-- Added Telegram alerts
+- Добавлен мониторинг мощности PZEM-004T
+- Добавлено отслеживание энергии
+- Добавлены обновления здоровья через WebSocket
+- Добавлены Telegram оповещения
 
 ### v1.1.0 (2025-12-02)
-- Initial API documentation
-- Core REST endpoints
-- WebSocket support
+- Первоначальная документация API
+- Основные REST эндпоинты
+- Поддержка WebSocket
 
 ---
 
-*Last updated: 2025-12-06*
+*Последнее обновление: 2025-12-06*
