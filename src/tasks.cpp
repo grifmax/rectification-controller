@@ -1,4 +1,8 @@
+#include <Arduino.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include "tasks.h"
+#include "config.h"
 #include "temp_sensors.h"
 #include "power_control.h"
 #include "pump.h"
@@ -6,7 +10,16 @@
 #include "utils.h"
 #include "display.h"
 #include "buttons.h"
-#include "webserver.h"
+#include "web.h"
+#include "rectification.h"
+#include "distillation.h"
+#include "heater.h"
+#include "settings.h"
+
+// Глобальные переменные из main.cpp
+extern bool systemRunning;
+extern bool systemPaused;
+extern OperationMode currentMode;
 
 // Идентификаторы задач FreeRTOS
 TaskHandle_t temperatureTaskHandle = NULL;

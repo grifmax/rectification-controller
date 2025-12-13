@@ -865,3 +865,15 @@ int getConnectedClientsCount() {
 bool isWebSocketActive() {
     return webSocketActive;
 }
+
+// Отправка температур через WebSocket
+void sendTemperaturesWebSocket() {
+    // Используем общую функцию обновления WebSocket
+    updateWebSocket();
+}
+
+// Отправка статуса системы через WebSocket
+void sendStatusWebSocket() {
+    // Используем общую функцию обновления WebSocket
+    updateWebSocket();
+}

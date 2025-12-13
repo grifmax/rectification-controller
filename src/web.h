@@ -89,9 +89,19 @@ int getConnectedClientsCount();
 
 /**
  * @brief Проверка активности WebSocket соединения
- * 
+ *
  * @return true если хотя бы один клиент подключен
  */
 bool isWebSocketActive();
+
+/**
+ * @brief Отправка температур через WebSocket
+ */
+void sendTemperaturesWebSocket();
+
+/**
+ * @brief Отправка статуса системы через WebSocket
+ */
+void sendStatusWebSocket();
 
 #endif // WEB_H

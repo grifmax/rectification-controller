@@ -9,7 +9,7 @@
 #include "power_control.h"
 #include "display.h"
 #include "buttons.h"
-#include "webserver.h"
+#include "web.h"
 #include "utils.h"
 #include "tasks.h"
 
@@ -820,30 +820,51 @@ void emergencyHeaterShutdown(const String& reason) {
 
 // Отправка уведомления через WebSocket
 void sendWebNotification(NotificationType type, const String& message) {
-  // Отправляем уведомление через WebSocket
-  sendNotificationToClients(type, message);
-  
-  // Выводим в консоль
+  // Определяем строковое представление типа
   String typeStr;
   switch (type) {
     case NOTIFY_INFO:
-      typeStr = "ИНФО";
+      typeStr = "info";
       break;
     case NOTIFY_SUCCESS:
-      typeStr = "УСПЕХ";
+      typeStr = "success";
       break;
     case NOTIFY_WARNING:
-      typeStr = "ПРЕДУПРЕЖДЕНИЕ";
+      typeStr = "warning";
       break;
     case NOTIFY_ERROR:
-      typeStr = "ОШИБКА";
+      typeStr = "error";
       break;
     default:
-      typeStr = "ИНФО";
+      typeStr = "info";
       break;
   }
-  
-  Serial.println("[" + typeStr + "] " + message);
+
+  // Отправляем уведомление через WebSocket в формате JSON
+  String jsonMessage = "{\"type\":\"notification\",\"level\":\"" + typeStr + "\",\"message\":\"" + message + "\"}";
+  broadcastWebSocketMessage(jsonMessage);
+
+  // Выводим в консоль
+  String consoleType;
+  switch (type) {
+    case NOTIFY_INFO:
+      consoleType = "ИНФО";
+      break;
+    case NOTIFY_SUCCESS:
+      consoleType = "УСПЕХ";
+      break;
+    case NOTIFY_WARNING:
+      consoleType = "ПРЕДУПРЕЖДЕНИЕ";
+      break;
+    case NOTIFY_ERROR:
+      consoleType = "ОШИБКА";
+      break;
+    default:
+      consoleType = "ИНФО";
+      break;
+  }
+
+  Serial.println("[" + consoleType + "] " + message);
 }
 
 // Перевод процентов мощности в ватты
