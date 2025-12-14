@@ -97,12 +97,17 @@ enum DistillationPhase {
 // Типы звуковых оповещений
 enum SoundType {
     SOUND_NONE,              // Без звука
-    SOUND_START,             // Запуск процесса
-    SOUND_STOP,              // Остановка процесса
+    SOUND_STARTUP,           // Запуск системы
+    SOUND_PROCESS_START,     // Запуск процесса
+    SOUND_PROCESS_STOP,      // Остановка процесса
+    SOUND_PAUSE,             // Пауза процесса
+    SOUND_RESUME,            // Возобновление процесса
     SOUND_PHASE_CHANGE,      // Смена фазы
     SOUND_ALARM,             // Тревога
+    SOUND_ERROR,             // Ошибка
     SOUND_PROCESS_COMPLETE,  // Процесс завершен
-    SOUND_BUTTON_PRESS,      // Нажатие кнопки
+    SOUND_BUTTON,            // Нажатие кнопки
+    SOUND_BUTTON_PRESS,      // Нажатие кнопки (альтернативное имя)
     SOUND_BUTTON_MENU        // Навигация по меню
 };
 
