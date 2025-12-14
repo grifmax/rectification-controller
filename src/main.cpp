@@ -40,12 +40,7 @@ void setup() {
   
   // Инициализация шины I2C
   Wire.begin(DISPLAY_SDA_PIN, DISPLAY_SCL_PIN);
-  
-  // Инициализация SPIFFS для веб-сервера
-  if (!SPIFFS.begin(true)) {
-    Serial.println("Ошибка инициализации SPIFFS!");
-  }
-  
+
   // Инициализация подсистем
   initStorage();          // Сначала загружаем настройки
   
