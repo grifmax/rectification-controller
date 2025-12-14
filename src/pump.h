@@ -4,6 +4,12 @@
 #include <Arduino.h>
 #include "config.h"
 
+// Глобальные переменные для отслеживания объемов
+extern float headsCollected;
+extern float bodyCollected;
+extern float tailsCollected;
+extern float distillationCollected;
+
 // Инициализация насоса
 void initPump();
 

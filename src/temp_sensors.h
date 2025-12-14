@@ -1,7 +1,7 @@
 /**
  * @file temp_sensors.h
  * @brief Управление температурными датчиками
- * 
+ *
  * Этот модуль отвечает за работу с датчиками температуры DS18B20,
  * их обнаружение, калибровку и считывание показаний.
  */
@@ -10,16 +10,10 @@
 #define TEMP_SENSORS_H
 
 #include <Arduino.h>
+#include "config.h"
 
-// Максимальное количество датчиков температуры
-#define MAX_TEMP_SENSORS 5
-
-// Индексы датчиков температуры
-#define TEMP_CUBE       0   // Куб
-#define TEMP_COLUMN     1   // Царга
-#define TEMP_REFLUX     2   // Узел отбора
-#define TEMP_TSA        3   // ТСА (теплообменник)
-#define TEMP_WATER_OUT  4   // Выход воды
+// Глобальный массив температур
+extern float temperatures[MAX_TEMP_SENSORS];
 
 /**
  * @brief Инициализация датчиков температуры

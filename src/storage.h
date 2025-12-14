@@ -4,6 +4,11 @@
 #include <Arduino.h>
 #include "config.h"
 
+// Глобальные переменные настроек
+extern RectificationParams rectParams;
+extern DistillationParams distParams;
+extern PumpSettings pumpSettings;
+
 // Инициализация системы хранения
 void initStorage();
 
